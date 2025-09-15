@@ -44,6 +44,8 @@ def jarvis_march_clockwise_steps(points: List[Point]):
                 collinear_points = []
                 added_collinear.clear()
             elif orient == 0:
+                print("Colinear case!")
+                print(p, q, r)
                 if dist_sq(p, r) > dist_sq(p, q):
                     collinear_points.append(q)
                     q = r
@@ -118,10 +120,10 @@ def animate_hull(points: List[Point]):
 # ---------------- Example Usage ----------------
 if __name__ == "__main__":
     points = [
-        (0,3), (2,2), (1,1), (2,1),
-        (3,0), (0,0), (3,3), (2,2), (3,1),
-        (1,2), (2,3), (1,3)
-        #   (0, 7), (2, 8), (5, 6), (4, 4),
-        # (2, 3), (4, 2), (3, 0)
+        # (0,3), (2,2), (1,1), (2,1),
+        # (3,0), (0,0), (3,3), (2,2), (3,1),
+        # (1,2), (2,3), (1,3)
+          (0, 7), (2, 8),(4, 9), (5, 6), (4, 4),
+        (2, 3), (4, 2), (3, 0)
     ]
     animate_hull(points)

@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convex Hull Visualizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        .input-section h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="number"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .textarea-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            min-height: 100px;
+            font-family: monospace;
+            transition: border-color 0.3s ease;
+        }
+
+        .textarea-input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .algorithm-select {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .algorithm-btn {
+            flex: 1;
+            background: #6c757d;
+        }
+
+        .algorithm-btn.active {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .visualization {
+            position: relative;
+            background: white;
+            border-radius: 15px;
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+        }
+
+        #canvas {
+            width: 100%;
+            height: 500px;
+            display: block;
+            cursor: crosshair;
+        }
+
+        .controls-bar {
+            padding: 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+        }
+
+        .points-list {
+            max-height: 150px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+        }
+
+        .step-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔷 Convex Hull Visualizer</h1>
+            <p>Interactive visualization of Jarvis March and Graham Scan algorithms</p>
+        </div>
+        
+        <div class="content">
+            <div class="controls">
+                <div class="input-section">
+                    <h3>Algorithm Selection</h3>
+                    <div class="algorithm-select">
+                        <button class="algorithm-btn active" id="jarvis-btn" onclick="selectAlgorithm('jarvis')">
+                            Jarvis March
+                        </button>
+                        <button class="algorithm-btn" id="graham-btn" onclick="selectAlgorithm('graham')">
+                            Graham Scan
+                        </button>
+                    </div>
+                </div>
+
+                <div class="input-section">
+                    <h3>Add Points</h3>
+                    <div class="input-group">
+                        <input type="number" id="x-input" placeholder="X coordinate" step="0.1">
+                        <input type="number" id="y-input" placeholder="Y coordinate" step="0.1">
+                        <button onclick="addPoint()">Add</button>
+                    </div>
+                    <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                        Tip: You can also click on the graph to add points
+                    </p>
+                </div>
+
+                <div class="input-section">
+                    <h3>Bulk Input</h3>
+                    <textarea class="textarea-input" id="bulk-input" placeholder="Enter points as: x,y (one per line)&#10;Example:&#10;0,3&#10;2,2&#10;1,1"></textarea>
+                    <button onclick="parseBulkInput()">Parse Points</button>
+                </div>
+
+                <div class="input-section">
+                    <h3>Sample Data</h3>
+                    <button onclick="loadSample1()">Load Sample 1</button>
+                    <button onclick="loadSample2()">Load Sample 2</button>
+                    <button onclick="clearPoints()">Clear All</button>
+                </div>
+
+                <div class="input-section">
+                    <h3>Current Points</h3>
+                    <div class="points-list" id="points-list">No points added yet</div>
+                </div>
+
+                <div class="status" id="status">
+                    Click "Start Animation" to begin visualization
+                </div>
+            </div>
+
+            <div class="visualization">
+                <canvas id="canvas" width="800" height="500"></canvas>
+                <div class="step-info" id="step-info" style="display: none;"></div>
+                <div class="controls-bar">
+                    <button onclick="startAnimation()">Start Animation</button>
+                    <button onclick="nextStep()">Next Step</button>
+                    <button onclick="resetAnimation()">Reset</button>
+                    <button onclick="toggleSpeed()">Speed: <span id="speed-text">Normal</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let points = [];
+        let currentAlgorithm = 'jarvis';
+        let animationSteps = [];
+        let currentStep = 0;
+        let isAnimating = false;
+        let animationSpeed = 1000; // milliseconds
+        let animationTimer = null;
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const margin = 50; // Margin for scaled points
+
+        // Scaling function to fit points within canvas
+        function getScalingParams(points) {
+            if (points.length === 0) {
+                return { scale: 1, translateX: 0, translateY: 0 };
+            }
+            const xs = points.map(p => p[0]);
+            const ys = points.map(p => p[1]);
+            const minX = Math.min(...xs);
+            const maxX = Math.max(...xs);
+            const minY = Math.min(...ys);
+            const maxY = Math.max(...ys);
+            const width = maxX - minX || 1; // Avoid division by zero
+            const height = maxY - minY || 1;
+            const canvasWidth = canvas.width - 2 * margin;
+            const canvasHeight = canvas.height - 2 * margin;
+            const scale = Math.min(canvasWidth / width, canvasHeight / height);
+            const translateX = margin - minX * scale + (canvasWidth - width * scale) / 2;
+            const translateY = margin - minY * scale + (canvasHeight - height * scale) / 2;
+            return { scale, translateX, translateY };
+        }
+
+        // Transform coordinates for rendering
+        function transformPoint(point, params) {
+            const x = point[0] * params.scale + params.translateX;
+            const y = canvas.height - (point[1] * params.scale + params.translateY); // Flip Y for canvas
+            return [x, y];
+        }
+
+        // Utility functions
+        function distance(a, b) {
+            return Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2);
+        }
+
+        function orientation(a, b, c) {
+            const cross = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+            if (Math.abs(cross) < 1e-12) return 0; // collinear
+            return cross > 0 ? 1 : 2; // 1 = counterclockwise, 2 = clockwise
+        }
+
+        function crossProduct(o, a, b) {
+            return (b[0] - a[0]) * (o[1] - a[1]) - (b[1] - a[1]) * (o[0] - a[0]);
+        }
+
+        // Jarvis March Algorithm
+        function* jarvisMarchSteps(pts) {
+            const unique = [...new Set(pts.map(p => `${p[0]},${p[1]}`))].map(s => s.split(',').map(Number));
+            if (unique.length <= 1) {
+                yield { hull: unique, current: null, candidate: null, test: null, action: 'complete' };
+                return;
+            }
+
+            const start = unique.reduce((min, p) => (p[0] < min[0] || (p[0] === min[0] && p[1] < min[1])) ? p : min);
+            const hull = [];
+            let p = start;
+
+            do {
+                hull.push(p);
+                let q = unique.find(pt => pt !== p) || unique[0];
+
+                for (let r of unique) {
+                    if (r === p || r === q) continue;
+                    
+                    yield { hull: [...hull], current: p, candidate: q, test: r, action: 'testing' };
+                    
+                    const orient = orientation(p, q, r);
+                    if (orient === 2) { // clockwise, r is better
+                        q = r;
+                    }
+                }
+                
+                yield { hull: [...hull], current: p, candidate: q, test: null, action: 'selected' };
+                p = q;
+            } while (p !== start);
+
+            yield { hull: [...hull], current: null, candidate: null, test: null, action: 'complete' };
+        }
+
+        // Graham Scan Algorithm
+        function* grahamScanSteps(pts) {
+            const unique = [...new Set(pts.map(p => `${p[0]},${p[1]}`))].map(s => s.split(',').map(Number));
+            if (unique.length <= 1) {
+                yield { hull: unique, current: null, candidate: null, action: 'complete' };
+                return;
+            }
+
+            const pivot = unique.reduce((min, p) => (p[1] < min[1] || (p[1] === min[1] && p[0] < min[0])) ? p : min);
+            
+            const sorted = unique.sort((a, b) => {
+                const cp = crossProduct(pivot, a, b);
+                if (cp > 0) return -1;
+                if (cp < 0) return 1;
+                const da = distance(pivot, a);
+                const db = distance(pivot, b);
+                return da - db;
+            });
+
+            const stack = [];
+            
+            for (let p of sorted) {
+                while (stack.length >= 2 && crossProduct(stack[stack.length-2], stack[stack.length-1], p) <= 0) {
+                    yield { hull: [...stack], current: p, removed: stack[stack.length-1], action: 'removing' };
+                    stack.pop();
+                }
+                stack.push(p);
+                yield { hull: [...stack], current: p, removed: null, action: 'adding' };
+            }
+
+            yield { hull: [...stack], current: null, removed: null, action: 'complete' };
+        }
+
+        // Visualization functions
+        function drawPoint(x, y, color = '#3498db', size = 6, params) {
+            const [tx, ty] = transformPoint([x, y], params);
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(tx, ty, size, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        function drawLine(x1, y1, x2, y2, color = '#e74c3c', width = 2, params) {
+            const [tx1, ty1] = transformPoint([x1, y1], params);
+            const [tx2, ty2] = transformPoint([x2, y2], params);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.beginPath();
+            ctx.moveTo(tx1, ty1);
+            ctx.lineTo(tx2, ty2);
+            ctx.stroke();
+        }
+
+        function drawCanvas() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Get scaling parameters
+            const params = getScalingParams(points);
+            
+            // Draw grid
+            ctx.strokeStyle = '#f0f0f0';
+            ctx.lineWidth = 1;
+            const gridSize = 50 / params.scale; // Adjust grid spacing based on scale
+            for (let x = Math.floor(Math.min(...points.map(p => p[0])) / gridSize) * gridSize; x <= Math.max(...points.map(p => p[0])); x += gridSize) {
+                const [tx1, ty1] = transformPoint([x, Math.min(...points.map(p => p[1]))], params);
+                const [tx2, ty2] = transformPoint([x, Math.max(...points.map(p => p[1]))], params);
+                ctx.beginPath();
+                ctx.moveTo(tx1, ty1);
+                ctx.lineTo(tx2, ty2);
+                ctx.stroke();
+            }
+            for (let y = Math.floor(Math.min(...points.map(p => p[1])) / gridSize) * gridSize; y <= Math.max(...points.map(p => p[1])); y += gridSize) {
+                const [tx1, ty1] = transformPoint([Math.min(...points.map(p => p[0])), y], params);
+                const [tx2, ty2] = transformPoint([Math.max(...points.map(p => p[0])), y], params);
+                ctx.beginPath();
+                ctx.moveTo(tx1, ty1);
+                ctx.lineTo(tx2, ty2);
+                ctx.stroke();
+            }
+
+            // Draw all points
+            points.forEach(point => {
+                drawPoint(point[0], point[1], '#3498db', 6, params);
+            });
+
+            // Draw current step if animation is running
+            if (animationSteps.length > 0 && currentStep < animationSteps.length) {
+                const step = animationSteps[currentStep];
+                
+                // Draw hull so far
+                if (step.hull && step.hull.length > 0) {
+                    ctx.strokeStyle = '#e74c3c';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    const [startX, startY] = transformPoint(step.hull[0], params);
+                    ctx.moveTo(startX, startY);
+                    for (let i = 1; i < step.hull.length; i++) {
+                        const [tx, ty] = transformPoint(step.hull[i], params);
+                        ctx.lineTo(tx, ty);
+                    }
+                    if (step.action === 'complete' && step.hull.length > 2) {
+                        ctx.lineTo(startX, startY);
+                    }
+                    ctx.stroke();
+
+                    // Draw hull points
+                    step.hull.forEach(point => {
+                        drawPoint(point[0], point[1], '#e74c3c', 8, params);
+                    });
+                }
+
+                // Draw special points
+                if (step.current) {
+                    drawPoint(step.current[0], step.current[1], '#27ae60', 10, params);
+                }
+                if (step.candidate) {
+                    drawPoint(step.candidate[0], step.candidate[1], '#f39c12', 8, params);
+                }
+                if (step.test) {
+                    drawPoint(step.test[0], step.test[1], '#9b59b6', 8, params);
+                }
+
+                // Update step info
+                updateStepInfo(step);
+            }
+        }
+
+        function updateStepInfo(step) {
+            const stepInfo = document.getElementById('step-info');
+            if (step.action === 'complete') {
+                stepInfo.style.display = 'none';
+            } else {
+                stepInfo.style.display = 'block';
+                let info = `Step ${currentStep + 1}/${animationSteps.length}\n`;
+                info += `Action: ${step.action}\n`;
+                if (step.current) info += `Current: (${step.current[0].toFixed(2)}, ${step.current[1].toFixed(2)})\n`;
+                if (step.candidate) info += `Candidate: (${step.candidate[0].toFixed(2)}, ${step.candidate[1].toFixed(2)})\n`;
+                if (step.test) info += `Testing: (${step.test[0].toFixed(2)}, ${step.test[1].toFixed(2)})`;
+                stepInfo.textContent = info;
+            }
+        }
+
+        // UI functions
+        function selectAlgorithm(algorithm) {
+            currentAlgorithm = algorithm;
+            document.querySelectorAll('.algorithm-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`${algorithm}-btn`).classList.add('active');
+            resetAnimation();
+        }
+
+        function addPoint() {
+            const x = parseFloat(document.getElementById('x-input').value);
+            const y = parseFloat(document.getElementById('y-input').value);
+            
+            if (isNaN(x) || isNaN(y)) {
+                alert('Please enter valid coordinates');
+                return;
+            }
+
+            points.push([x, y]);
+            document.getElementById('x-input').value = '';
+            document.getElementById('y-input').value = '';
+            updatePointsList();
+            drawCanvas();
+        }
+
+        function parseBulkInput() {
+            const input = document.getElementById('bulk-input').value.trim();
+            if (!input) return;
+
+            const lines = input.split('\n');
+            const newPoints = [];
+
+            for (let line of lines) {
+                const coords = line.trim().split(',').map(s => parseFloat(s.trim()));
+                if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+                    newPoints.push(coords);
+                }
+            }
+
+            points.push(...newPoints);
+            document.getElementById('bulk-input').value = '';
+            updatePointsList();
+            drawCanvas();
+        }
+
+        function loadSample1() {
+            points = [[100, 400], [200, 300], [150, 150], [200, 100], [300, 50], [50, 50], [300, 300], [200, 200], [300, 100], [100, 200], [200, 350], [100, 300]];
+            updatePointsList();
+            drawCanvas();
+        }
+
+        function loadSample2() {
+            points = [[50, 350], [150, 400], [250, 450], [300, 300], [250, 200], [150, 150], [250, 100], [200, 50]];
+            updatePointsList();
+            drawCanvas();
+        }
+
+        function clearPoints() {
+            points = [];
+            updatePointsList();
+            resetAnimation();
+            drawCanvas();
+        }
+
+        function updatePointsList() {
+            const list = document.getElementById('points-list');
+            if (points.length === 0) {
+                list.textContent = 'No points added yet';
+            } else {
+                list.textContent = points.map(p => `(${p[0].toFixed(2)}, ${p[1].toFixed(2)})`).join('\n');
+            }
+        }
+
+        function startAnimation() {
+            if (points.length < 3) {
+                alert('Please add at least 3 points');
+                return;
+            }
+
+            resetAnimation();
+            
+            if (currentAlgorithm === 'jarvis') {
+                animationSteps = Array.from(jarvisMarchSteps(points));
+            } else {
+                animationSteps = Array.from(grahamScanSteps(points));
+            }
+
+            isAnimating = true;
+            runAnimation();
+        }
+
+        function runAnimation() {
+            if (!isAnimating || currentStep >= animationSteps.length) {
+                isAnimating = false;
+                document.getElementById('status').textContent = 'Animation complete!';
+                return;
+            }
+
+            drawCanvas();
+            document.getElementById('status').textContent = `Step ${currentStep + 1} of ${animationSteps.length}`;
+            
+            currentStep++;
+            animationTimer = setTimeout(runAnimation, animationSpeed);
+        }
+
+        function nextStep() {
+            if (animationSteps.length === 0) {
+                if (points.length < 3) {
+                    alert('Please add at least 3 points');
+                    return;
+                }
+                if (currentAlgorithm === 'jarvis') {
+                    animationSteps = Array.from(jarvisMarchSteps(points));
+                } else {
+                    animationSteps = Array.from(grahamScanSteps(points));
+                }
+            }
+
+            if (currentStep < animationSteps.length) {
+                currentStep++;
+                drawCanvas();
+                document.getElementById('status').textContent = `Step ${currentStep} of ${animationSteps.length}`;
+            }
+        }
+
+        function resetAnimation() {
+            isAnimating = false;
+            if (animationTimer) {
+                clearTimeout(animationTimer);
+                animationTimer = null;
+            }
+            currentStep = 0;
+            animationSteps = [];
+            drawCanvas();
+            document.getElementById('status').textContent = 'Ready to start animation';
+        }
+
+        function toggleSpeed() {
+            if (animationSpeed === 1000) {
+                animationSpeed = 500;
+                document.getElementById('speed-text').textContent = 'Fast';
+            } else if (animationSpeed === 500) {
+                animationSpeed = 200;
+                document.getElementById('speed-text').textContent = 'Very Fast';
+            } else {
+                animationSpeed = 1000;
+                document.getElementById('speed-text').textContent = 'Normal';
+            }
+        }
+
+        // // Canvas click handler to add points
+        // canvas.addEventListener('click', function(e) {
+        //     const rect = canvas.getBoundingClientRect();
+        //     const params = getScalingParams(points);
+        //     const canvasX = e.clientX - rect.left;
+        //     const canvasY = e.clientY - rect.top;
+        //     // Reverse transform to get logical coordinates
+        //     const x = (canvasX - params.translateX) / params.scale;
+        //     const y = (canvas.height - canvasY - params.translateY) / params.scale;
+        //     points.push([x, y]);
+        //     updatePointsList();
+        //     drawCanvas();
+        // });
+
+        // Initialize
+        drawCanvas();
+        updatePointsList();
+    </script>
+</body>
+</html>
