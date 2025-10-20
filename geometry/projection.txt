@@ -1,0 +1,30 @@
+Algorithm VectorProjection(a, b, n)
+Input:
+    a[1..n]  // components of vector a
+    b[1..n]  // components of vector b
+Output:
+    proj[1..n]  // projection of a onto b
+
+Begin
+    // Step 1: Compute dot products
+    dot_ab ← 0
+    dot_bb ← 0
+    for i ← 1 to n do
+        dot_ab ← dot_ab + a[i] * b[i]
+        dot_bb ← dot_bb + b[i] * b[i]
+    end for
+
+    // Step 2: Handle zero vector case
+    if dot_bb = 0 then
+        return "Invalid projection (b is zero vector)"
+
+    // Step 3: Compute scalar coefficient
+    coeff ← dot_ab / dot_bb
+
+    // Step 4: Compute projection vector
+    for i ← 1 to n do
+        proj[i] ← coeff * b[i]
+    end for
+
+    return proj
+End

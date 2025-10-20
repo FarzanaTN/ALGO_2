@@ -1,0 +1,69 @@
+Algorithm CheckParallelAndCollinear_ND(A, B, C, D, n)
+Input:
+    A, B, C, D → arrays of n coordinates each (A[1..n], B[1..n], C[1..n], D[1..n])
+Output:
+    "Parallel" if lines are parallel but not collinear
+    "Collinear" if lines are on the same infinite line
+    "Not Parallel" otherwise
+
+Begin
+    // Step 1: Compute direction vectors
+    for i ← 1 to n do
+        v1[i] ← B[i] - A[i]
+        v2[i] ← D[i] - C[i]
+    end for
+
+    // Step 2: Check for degenerate lines
+    if all components of v1 = 0 or all components of v2 = 0 then
+        return "Invalid line segment"
+
+    // Step 3: Compute scalar ratio for direction vectors
+    ratio ← null
+    for i ← 1 to n do
+        if v2[i] ≠ 0 then
+            ratio ← v1[i] / v2[i]
+            break
+        end if
+    end for
+
+    if ratio = null then
+        return "Invalid line segment"
+
+    // Step 4: Check if direction vectors are parallel
+    for i ← 1 to n do
+        if v2[i] = 0 then
+            if v1[i] ≠ 0 then
+                return "Not Parallel"
+            end if
+        else if abs(v1[i] / v2[i] - ratio) > ε then
+            return "Not Parallel"
+        end if
+    end for
+
+    // Step 5: Check collinearity — vector from A to C must also align
+    for i ← 1 to n do
+        ac[i] ← C[i] - A[i]
+    end for
+
+    // Compute scalar ratio for AC and AB
+    ratio_ac ← null
+    for i ← 1 to n do
+        if v1[i] ≠ 0 then
+            ratio_ac ← ac[i] / v1[i]
+            break
+        end if
+    end for
+
+    // Check if AC is also a scalar multiple of AB
+    for i ← 1 to n do
+        if v1[i] = 0 then
+            if ac[i] ≠ 0 then
+                return "Parallel"   // Parallel but not collinear
+            end if
+        else if abs(ac[i] / v1[i] - ratio_ac) > ε then
+            return "Parallel"       // Parallel but not same line
+        end if
+    end for
+
+    return "Collinear"
+End

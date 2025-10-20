@@ -1,0 +1,47 @@
+Algorithm GrahamScan(points)
+Input:
+    points → list of points [(x1, y1), (x2, y2), ..., (xn, yn)]
+Output:
+    convex_hull → list of points forming the convex hull in counter-clockwise order
+
+Begin
+    // Step 1: Remove duplicate points and sort lexicographically
+    points ← sorted(set(points))  // first by x, then by y
+
+    if number of points ≤ 1 then
+        return points
+
+    // Step 2: Find pivot (lowest y, then lowest x)
+    pivot ← point with minimum y (break ties by x)
+
+    // Step 3: Sort points by polar angle w.r.t pivot
+    Define comparator polar_cmp(a, b):
+        cp ← cross(pivot, a, b)  // 2D cross product
+        if cp > 0: return -1       // a comes before b
+        else if cp < 0: return 1   // b comes before a
+        else:
+            // collinear: closer point comes first
+            da ← squared distance from pivot to a
+            db ← squared distance from pivot to b
+            return -1 if da < db else 1 if da > db else 0
+
+    sorted_points ← points sorted using polar_cmp
+
+    // Step 4: Initialize empty stack
+    stack ← empty list
+
+    // Step 5: Process each point
+    for p in sorted_points:
+        while size(stack) ≥ 2 and cross(stack[-2], stack[-1], p) ≤ 0:
+            // Pop the top of the stack if it makes a clockwise turn
+            stack.pop()
+        stack.append(p)
+
+    // Step 6: Return convex hull
+    return stack
+End
+
+// ---------------- Helper Function ----------------
+Function cross(o, a, b):
+    // 2D cross product (OA x OB)
+    return (a.x - o.x)*(b.y - o.y) - (a.y - o.y)*(b.x - o.x)

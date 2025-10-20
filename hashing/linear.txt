@@ -1,0 +1,20 @@
+function linear_insert(hash_table, key):
+    index = hash1(key) % table_size
+    i = 0
+    while hash_table[(index + i) % table_size] is not EMPTY and hash_table[(index + i) % table_size] != DELETED:
+        i = i + 1
+    hash_table[(index + i) % table_size] = key
+
+function linear_search(hash_table, key):
+    index = hash1(key) % table_size
+    i = 0
+    while hash_table[(index + i) % table_size] != EMPTY:
+        if hash_table[(index + i) % table_size] == key:
+            return (index + i) % table_size  // found
+        i = i + 1
+    return NOT_FOUND
+
+function linear_delete(hash_table, key):
+    pos = linear_search(hash_table, key)
+    if pos != NOT_FOUND:
+        hash_table[pos] = DELETED

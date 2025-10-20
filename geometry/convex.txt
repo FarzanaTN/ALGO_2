@@ -1,0 +1,13 @@
+def ray_casting(point, polygon):
+ x, y = point
+ num_vertices = len(polygon)
+ crossings = 0
+
+for i in range(num_vertices):
+ x1, y1 = polygon[i]
+ x2, y2 = polygon[(i + 1) % num_vertices]
+
+if y1 <= y < y2 and (x - x1) * (y2 - y1) < (x2 - x1) * (y - y1):
+ crossings += 1
+
+return crossings % 2 == 1

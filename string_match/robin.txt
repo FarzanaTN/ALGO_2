@@ -1,0 +1,65 @@
+---------------------------------------------------------
+Algorithm MAIN()
+    TEXT ← "geeksforgeeks"
+    PATTERN ← "geek"
+    RESULT ← RABIN_KARP(TEXT, PATTERN)
+    print(RESULT)
+---------------------------------------------------------
+
+Algorithm POWER_CALCULATION(S)
+    // Precompute base powers for the string length
+    n ← length(S)
+    BASE ← 256
+    POW_CAL[0..n-1] ← 0
+    POW_CAL[n - 1] ← 1
+
+    for i ← n - 2 downto 0 do
+        POW_CAL[i] ← POW_CAL[i + 1] * BASE
+
+    return POW_CAL
+---------------------------------------------------------
+
+Algorithm COMPUTE_HASH(S, M)
+    // Compute hash value for first M characters of S
+    POW_CAL ← POWER_CALCULATION(S)
+    H ← 0
+    J ← 0
+    for i ← 0 to M - 1 do
+        H ← (H + POW_CAL[J] * ASCII(S[i])) mod MOD
+        J ← J + 1
+    return H
+---------------------------------------------------------
+
+Algorithm RABIN_KARP(TEXT, PATTERN)
+    N ← length(TEXT)
+    M ← length(PATTERN)
+    if M > N then
+        return empty list
+
+    BASE ← 256
+    MOD ← 10^9 + 7
+    RESULT ← empty list
+
+    HIGH_POW ← (BASE)^(M - 1) mod MOD
+
+    PATTERN_HASH ← COMPUTE_HASH(PATTERN, M)
+    WINDOW_HASH ← COMPUTE_HASH(first M characters of TEXT, M)
+
+    for i ← 0 to N - M do
+        if WINDOW_HASH = PATTERN_HASH then
+            if substring(TEXT, i, i + M - 1) = PATTERN then
+                append i to RESULT
+
+        if i < N - M then
+            // Rolling hash update:
+            // 1. Remove leftmost character
+            WINDOW_HASH ← (WINDOW_HASH - ASCII(TEXT[i]) * HIGH_POW) mod MOD
+            // 2. Multiply by base to shift window
+            WINDOW_HASH ← (WINDOW_HASH * BASE) mod MOD
+            // 3. Add next character
+            WINDOW_HASH ← (WINDOW_HASH + ASCII(TEXT[i + M])) mod MOD
+            // Ensure non-negative
+            WINDOW_HASH ← (WINDOW_HASH + MOD) mod MOD
+
+    return RESULT
+---------------------------------------------------------

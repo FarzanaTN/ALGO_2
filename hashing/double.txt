@@ -1,0 +1,26 @@
+function double_hash_insert(hash_table, key):
+    index1 = hash1(key) % table_size
+    index2 = hash2(key) % table_size
+    if index2 == 0:
+        index2 = 1
+    i = 0
+    while hash_table[(index1 + i * index2) % table_size] is not EMPTY and hash_table[(index1 + i * index2) % table_size] != DELETED:
+        i = i + 1
+    hash_table[(index1 + i * index2) % table_size] = key
+
+function double_hash_search(hash_table, key):
+    index1 = hash1(key) % table_size
+    index2 = hash2(key) % table_size
+    if index2 == 0:
+        index2 = 1
+    i = 0
+    while hash_table[(index1 + i * index2) % table_size] != EMPTY:
+        if hash_table[(index1 + i * index2) % table_size] == key:
+            return (index1 + i * index2) % table_size  // found
+        i = i + 1
+    return NOT_FOUND
+
+function double_hash_delete(hash_table, key):
+    pos = double_hash_search(hash_table, key)
+    if pos != NOT_FOUND:
+        hash_table[pos] = DELETED

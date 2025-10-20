@@ -1,0 +1,26 @@
+Algorithm PolygonArea(vertices)
+Input:
+    vertices → list of points [ (x1, y1), (x2, y2), ..., (xn, yn) ] in order (anticlockwise or clockwise)
+Output:
+    area → area of the polygon
+
+Begin
+    n ← number of vertices
+    sum1 ← 0
+    sum2 ← 0
+
+    // Step 1: Loop through vertices
+    for i from 0 to n-2 do
+        sum1 ← sum1 + vertices[i].x * vertices[i+1].y
+        sum2 ← sum2 + vertices[i].y * vertices[i+1].x
+    end for
+
+    // Step 2: Add the wrap-around terms
+    sum1 ← sum1 + vertices[n-1].x * vertices[0].y
+    sum2 ← sum2 + vertices[0].x * vertices[n-1].y
+
+    // Step 3: Compute area
+    area ← abs(sum1 - sum2) / 2
+
+    return area
+End

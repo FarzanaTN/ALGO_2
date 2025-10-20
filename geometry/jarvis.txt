@@ -1,0 +1,62 @@
+Algorithm JarvisMarchClockwise(points)
+Input:
+    points → list of points [(x1, y1), (x2, y2), ..., (xn, yn)]
+Output:
+    hull → list of points forming the convex hull in clockwise order
+
+Begin
+    // Step 1: Remove duplicates
+    unique_points ← remove duplicates from points
+
+    if number of unique_points ≤ 1 then
+        return unique_points
+
+    // Step 2: Find the starting point
+    start ← point with minimum x (break ties by minimum y)
+    p ← start
+    hull ← empty list
+
+    // Step 3: Construct the hull
+    repeat
+        hull.append(p)
+        // Initially select q as any other point
+        q ← first point in unique_points not equal to p
+        collinear_points ← empty list
+
+        for each r in unique_points:
+            if r == p or r == q then
+                continue
+            orient ← orientation(p, q, r)
+            
+            if orient == clockwise:       // CW selection
+                q ← r
+                collinear_points.clear()
+            else if orient == collinear:
+                if distance(p, r) > distance(p, q):
+                    collinear_points.append(q)
+                    q ← r
+                else:
+                    collinear_points.append(r)
+
+        // Add collinear points along the edge, sorted by distance from p
+        sort collinear_points by distance from p
+        hull.extend(collinear_points)
+
+        p ← q
+    until p == start
+
+    return hull
+End
+
+// ---------------- Helper Functions ----------------
+Function orientation(a, b, c):
+    cross_product ← (b.x - a.x)*(c.y - a.y) - (b.y - a.y)*(c.x - a.x)
+    if cross_product ≈ 0 then
+        return collinear
+    else if cross_product > 0 then
+        return clockwise
+    else
+        return counter_clockwise
+
+Function distance(a, b):
+    return (a.x - b.x)^2 + (a.y - b.y)^2

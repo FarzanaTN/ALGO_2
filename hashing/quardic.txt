@@ -1,0 +1,20 @@
+function quadratic_insert(hash_table, key):
+    index = hash1(key) % table_size
+    i = 0
+    while hash_table[(index + i*i) % table_size] is not EMPTY and hash_table[(index + i*i) % table_size] != DELETED:
+        i = i + 1
+    hash_table[(index + i*i) % table_size] = key
+
+function quadratic_search(hash_table, key):
+    index = hash1(key) % table_size
+    i = 0
+    while hash_table[(index + i*i) % table_size] != EMPTY:
+        if hash_table[(index + i*i) % table_size] == key:
+            return (index + i*i) % table_size  // found
+        i = i + 1
+    return NOT_FOUND
+
+function quadratic_delete(hash_table, key):
+    pos = quadratic_search(hash_table, key)
+    if pos != NOT_FOUND:
+        hash_table[pos] = DELETED

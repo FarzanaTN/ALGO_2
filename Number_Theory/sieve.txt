@@ -1,0 +1,77 @@
+---------------------------------------------------------
+Algorithm MAIN()
+    print("Prime Sum of 5 =", PRIME_SUM(5))
+    // Example output: 10
+---------------------------------------------------------
+
+Algorithm SIEVE(n)
+    // Generate all primes up to n using Sieve of Eratosthenes
+    Create array PRIME[0..n] ← TRUE
+    PRIME[0] ← FALSE
+    PRIME[1] ← FALSE
+
+    p ← 2
+    while p * p ≤ n do
+        if PRIME[p] = TRUE then
+            for i ← p * p to n step p do
+                PRIME[i] ← FALSE
+        p ← p + 1
+
+    PRIMES ← empty list
+    for i ← 2 to n do
+        if PRIME[i] = TRUE then
+            append i to PRIMES
+
+    return PRIMES
+---------------------------------------------------------
+
+Algorithm DIVISOR_CHECK(n)
+    // Find all divisors of n
+    DIVISORS ← empty set
+    d ← 1
+    while d * d ≤ n do
+        if n mod d = 0 then
+            add d to DIVISORS
+            add (n / d) to DIVISORS
+        d ← d + 1
+    return DIVISORS sorted in ascending order
+---------------------------------------------------------
+
+Algorithm PRIME_DIVISOR_CHECK(n)
+    // Find all prime divisors of n using the sieve
+    PRIME_NUMBERS ← set of SIEVE(n)
+    DIVISORS ← empty set
+    d ← 2
+    while d * d ≤ n do
+        if n mod d = 0 then
+            if d in PRIME_NUMBERS then
+                add d to DIVISORS
+            if (n / d) in PRIME_NUMBERS then
+                add (n / d) to DIVISORS
+        d ← d + 1
+    return DIVISORS sorted in ascending order
+---------------------------------------------------------
+
+Algorithm OPTIMIZE_PRIME_DIVISOR_CHECK(n)
+    // More efficient version without generating all primes first
+    DIVISORS ← empty set
+    d ← 2
+    while d * d ≤ n do
+        if n mod d = 0 then
+            add d to DIVISORS
+            while n mod d = 0 do
+                n ← n / d      // remove all factors of d
+        d ← d + 1
+    if n > 1 then
+        add n to DIVISORS
+    return DIVISORS sorted in ascending order
+---------------------------------------------------------
+
+Algorithm PRIME_SUM(n)
+    // Return the sum of all prime numbers ≤ n
+    PRIMES ← SIEVE(n)
+    SUM ← 0
+    for each p in PRIMES do
+        SUM ← SUM + p
+    return SUM
+---------------------------------------------------------

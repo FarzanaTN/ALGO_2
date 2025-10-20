@@ -1,0 +1,109 @@
+class Node:
+    children : map<char, Node>
+    eow : boolean                // end of word (suffix)
+    indexes : list<int>          // positions of suffix starts
+
+class CompNode:
+    children : map<string, CompNode>  // edge labels (strings)
+    eow : boolean
+    indexes : list<int>
+
+function BUILD_SUFFIX_TRIE(text):
+    text ← lowercase(text)
+    root ← new Node()
+
+    for i from 0 to length(text) - 1:
+        node ← root
+        for each character c in text[i : end]:
+            if c not in node.children:
+                node.children[c] ← new Node()
+            node ← node.children[c]
+            append i to node.indexes
+        node.eow ← true
+
+    return root
+
+function COMPRESS(node):
+    comp ← new CompNode()
+    comp.eow ← node.eow
+    comp.indexes ← copy(node.indexes)
+
+    for each (char, child) in node.children:
+        label ← char
+        current ← child
+
+        // collapse single-child chains
+        while (current has exactly one child) AND (current.eow == false):
+            (next_char, next_node) ← only child of current
+            label ← label + next_char
+            current ← next_node
+
+        comp.children[label] ← COMPRESS(current)
+
+    return comp
+
+function SEARCH_POSITIONS(root, pattern):
+    pattern ← lowercase(pattern)
+    node ← root
+    i ← 0
+
+    while i < length(pattern):
+        found ← false
+
+        for each (label, child) in node.children:
+            label_lower ← lowercase(label)
+
+            if pattern starting at i begins with label_lower:
+                i ← i + length(label_lower)
+                node ← child
+                found ← true
+                break
+
+            else if label_lower starts with substring(pattern[i : end]):
+                return child.indexes   // pattern ends inside this label
+
+        if not found:
+            return []
+
+    return node.indexes
+
+function SEARCH_SUBSTRING(root, pattern):
+    pattern ← lowercase(pattern)
+    node ← root
+    i ← 0
+
+    while i < length(pattern):
+        matched ← false
+        for each (label, child) in node.children:
+            label_lower ← lowercase(label)
+            if pattern starting at i begins with label_lower:
+                i ← i + length(label_lower)
+                node ← child
+                matched ← true
+                break
+            else if label_lower starts with pattern[i : end]:
+                return true
+        if not matched:
+            return false
+    return true
+
+function SEARCH_IS_SUFFIX(root, pattern):
+    pattern ← lowercase(pattern)
+    node ← root
+    i ← 0
+
+    while i < length(pattern):
+        matched ← false
+        for each (label, child) in node.children:
+            label_lower ← lowercase(label)
+            if pattern starting at i begins with label_lower:
+                i ← i + length(label_lower)
+                node ← child
+                matched ← true
+                break
+            else if label_lower starts with pattern[i : end]:
+                return false   // pattern ends inside edge → not full suffix
+        if not matched:
+            return false
+
+    return node.eow
