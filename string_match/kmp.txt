@@ -1,44 +1,24 @@
----------------------------------------------------------
-Algorithm MAIN()
-    TEXT ← "aabaacaadaabaaba"
-    PATTERN ← "aaba"
-    MATCHES ← KMP_SEARCH(TEXT, PATTERN)
-    print("Pattern found at indices:", MATCHES)
----------------------------------------------------------
 
-Algorithm PREFIX_FUNCTION(PATTERN)
-    n ← length(PATTERN)
-    Create array PI[0..n-1] ← 0
-    j ← 0
+FUNCTION KMPSearch(text, pattern): 
+    n = length of text
+    m = length of pattern
+    lps = computeLPS(pattern, m)
 
-    for i ← 1 to n-1 do
-        while j > 0 and PATTERN[i] ≠ PATTERN[j] do
-            j ← PI[j - 1]
-        if PATTERN[i] = PATTERN[j] then
-            j ← j + 1
-        PI[i] ← j
+    i=0 // index for text
+    j=0 // index for pattern
 
-    return PI
----------------------------------------------------------
+    WHILE i<n:
+        IF text[i]== patten[j]:
+        i=i+1
+        j=j+1
+        
+        IF j==m:
+            PRINT "Pattern found at index", i-j 
+            j = lps[j-1]
 
-Algorithm KMP_SEARCH(TEXT, PATTERN)
-    n ← length(TEXT)
-    m ← length(PATTERN)
-    PI ← PREFIX_FUNCTION(PATTERN)
-    RESULT ← empty list
-    j ← 0     // index for PATTERN
-
-    for i ← 0 to n - 1 do     // index for TEXT
-        while j > 0 and TEXT[i] ≠ PATTERN[j] do
-            j ← PI[j - 1]
-
-        if TEXT[i] = PATTERN[j] then
-            j ← j + 1
-
-        if j = m then
-            // pattern found ending at index i
-            append (i - m + 1) to RESULT
-            j ← PI[j - 1]   // continue searching for next matches
-
-    return RESULT
----------------------------------------------------------
+        ELSE IF i < n AND text[i] != pattern[j]:
+            IF j!= 0: 
+            j = lps[j-1]
+            
+            ELSE:
+            i=i+1

@@ -1,0 +1,10 @@
+Procedure GET_PERMUTATIONS(nums[1..n], idx, ans):
+
+    if idx == n then
+        ans.append(copy(nums))
+        return
+
+    for i from idx to n do
+        swap(nums[idx], nums[i])        # Choose an element for current position
+        GET_PERMUTATIONS(nums, idx + 1, ans)
+        swap(nums[idx], nums[i])        # Backtrack (undo the swap)

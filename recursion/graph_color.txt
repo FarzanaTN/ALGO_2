@@ -1,0 +1,44 @@
+Fun color(v- idx, n):
+    if (v-idx) == n :
+        return true
+    for c in [R, G, B]:
+        if valid(c, v-idx)
+            col[v-idx] = c
+            return color(v-idx+1, n)
+    
+    return false
+
+
+Procedure GRAPH_COLORING(graph, m, n):
+    # graph : adjacency matrix of size n x n
+    # m     : number of available colors
+    # n     : number of vertices
+
+    color[1..n] ← {0, 0, ..., 0}   # 0 means "no color assigned"
+
+    if COLOR_VERTEX(1, graph, m, n, color) = true then
+        print("Solution exists:")
+        print(color[1..n])
+    else
+        print("No solution possible")
+
+
+Procedure COLOR_VERTEX(v, graph, m, n, color):
+    if v > n then
+        return true    # All vertices are colored successfully
+
+    for c in 1 → m do
+        if IS_VALID_COLOR(v, graph, color, c) = true then
+            color[v] ← c
+            if COLOR_VERTEX(v + 1, graph, m, n, color) = true then
+                return true
+            color[v] ← 0   # Backtrack
+
+    return false   # No valid color found
+
+
+Function IS_VALID_COLOR(v, graph, color, c):
+    for i in 1 → n do
+        if graph[v][i] = 1 and color[i] = c then
+            return false   # Adjacent vertex has same color
+    return true

@@ -1,0 +1,69 @@
+def f(r, c):
+    if r == c and r == n :
+        ans = check(M)
+    if ans :
+        print(M)
+    return
+
+    if c < n-1 :
+        next_c = c+1
+        next_r = r 
+    else 
+        next_c = 0
+        next_r = r+1
+    M[r][c] = 1
+    f(next_r, next_c)
+    M[r][c] = 0
+    f(next_r, next_c)
+
+
+def f_M1(i):
+    if i == n*n :
+        ans = is_valid(M)
+    if ans :
+        print(M)
+    return
+
+    r = i //n
+    c = i % n 
+    M[r][c] = 1
+    f_M1(i+1)
+    M[r][c] = 0
+    f_M1(i+1)
+
+def f_M2(i):
+    if i == n*n :
+        ans = is_valid(M)
+    if ans :
+        print(M)
+    return
+
+    r = i //n
+    c = i % n 
+    M[r][c] = 1
+    if (!safe(M)):
+        return;
+    f_M2(i+1)
+    M[r][c] = 0
+    f_M2(i+1)
+
+def f_M3(i):
+    if i == n :
+        if valid :
+            print(M)
+        return
+
+   for j in range(n):
+        c[i] = j
+        f_M3(i+1)
+
+#gpt
+def f_M3(i):
+    if i == n:
+        print(c)
+        return
+
+    for j in range(n):
+        c[i] = j
+        if is_valid(i):
+            f_M3(i + 1)

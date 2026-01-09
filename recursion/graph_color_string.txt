@@ -1,0 +1,30 @@
+Procedure GRAPH_COLORING_BRUTE_FORCE(graph, m, n):
+    colors = [1, 2, ..., m]
+    for each color_string in ALL_PERMUTATIONS(colors, n):
+        if IS_VALID_STRING(color_string, graph, n):
+            print("Coloring possible:", color_string)
+            return true
+    print("No valid coloring found")
+    return false
+
+
+Function ALL_PERMUTATIONS(colors, n):
+    # Generate all length-n sequences over m colors
+    # (total m^n possibilities)
+    if n == 0:
+        return [""]
+    else:
+        smaller = ALL_PERMUTATIONS(colors, n - 1)
+        result = []
+        for s in smaller:
+            for c in colors:
+                result.append(s + c)
+        return result
+
+
+Function IS_VALID_STRING(color_string, graph, n):
+    for i = 1 → n:
+        for j = i + 1 → n:
+            if graph[i][j] == 1 and color_string[i] == color_string[j]:
+                return false
+    return true

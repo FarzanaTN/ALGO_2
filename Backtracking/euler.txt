@@ -1,0 +1,25 @@
+function find_eulerian_path(start_vertex):
+    stack = empty stack
+    path_so_far = empty list
+
+    // push starting vertex with next index 0
+    stack.push((start_vertex, 0))
+
+    while stack is not empty:
+        (current_vertex, next_index) = stack.top()
+
+        if all edges of current_vertex are used:
+            path_so_far.append(current_vertex)
+            stack.pop()
+        else:
+            next_vertex = adj[current_vertex][next_index]
+            
+            if edge (current_vertex, next_vertex) is already used:
+                stack.top().next_index += 1
+                continue
+            
+            // mark edge as used
+            mark edge (current_vertex, next_vertex) as used
+            
+            // push next vertex with next index 0
+            stack.push((next_vertex, 0))

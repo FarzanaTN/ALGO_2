@@ -1,0 +1,69 @@
+procedure SOLVE_NQUEENS(n)
+    create board[n][n] initialized to 0
+    CALL PLACE_QUEEN(0, n, board)
+end procedure
+
+
+procedure PLACE_QUEEN(row, n, board)
+    if row == n then
+        PRINT_BOARD(board)
+        return
+    end if
+
+    for col = 0 to n-1 do
+        if IS_SAFE(board, row, col, n) then
+            board[row][col] ← 1          // place queen
+            PLACE_QUEEN(row + 1, n, board)
+            board[row][col] ← 0          // backtrack
+        end if
+    end for
+end procedure
+
+
+function IS_SAFE(board, row, col, n)
+    // check column
+    for i = 0 to row-1 do
+        if board[i][col] == 1 then
+            return false
+        end if
+    end for
+
+    // check upper-left diagonal
+    i ← row - 1
+    j ← col - 1
+    while i ≥ 0 and j ≥ 0 do
+        if board[i][j] == 1 then
+            return false
+        end if
+        i ← i - 1
+        j ← j - 1
+    end while
+
+    // check upper-right diagonal
+    i ← row - 1
+    j ← col + 1
+    while i ≥ 0 and j < n do
+        if board[i][j] == 1 then
+            return false
+        end if
+        i ← i - 1
+        j ← j + 1
+    end while
+
+    return true
+end function
+
+
+procedure PRINT_BOARD(board)
+    for each row in board do
+        for each cell in row do
+            if cell == 1 then
+                print "Q"
+            else
+                print "."
+            end if
+        end for
+        print newline
+    end for
+    print newline
+end procedure

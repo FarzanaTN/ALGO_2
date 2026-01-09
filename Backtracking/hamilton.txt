@@ -1,0 +1,12 @@
+def f(path_so_far):
+    if stack_size == n and last_node first node has edge :
+        return true
+    
+    last_array_vertex = path_so_far.seek()
+
+    for next_v in adj[last_array_vertex]:
+        if next_v in path_so_far:
+            continue
+        path_so_far.push(next_v)
+        f(path_so_far)
+        path_so_far.pop()

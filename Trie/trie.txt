@@ -1,0 +1,42 @@
+---------------------------------------------------------
+Data structure NODE
+    CHILDREN[0..25] ← all NULL
+    EOW ← FALSE     // End Of Word flag
+---------------------------------------------------------
+
+Global ROOT ← new NODE
+---------------------------------------------------------
+
+Algorithm INSERT(WORD)
+    NODE ← ROOT
+    for i ← 0 to length(WORD) - 1 do
+        INDEX ← ASCII(WORD[i]) - ASCII('a')
+        if NODE.CHILDREN[INDEX] = NULL then
+            NODE.CHILDREN[INDEX] ← new NODE
+
+        if i = length(WORD) - 1 then
+            NODE.CHILDREN[INDEX].EOW ← TRUE
+
+        NODE ← NODE.CHILDREN[INDEX]
+---------------------------------------------------------
+
+Algorithm SEARCH(KEY)
+    NODE ← ROOT
+    for i ← 0 to length(KEY) - 1 do
+        INDEX ← ASCII(KEY[i]) - ASCII('a')
+        if NODE.CHILDREN[INDEX] = NULL then
+            return FALSE
+        NODE ← NODE.CHILDREN[INDEX]
+        if i = length(KEY) - 1 and NODE.EOW = FALSE then
+            return FALSE
+    return TRUE
+---------------------------------------------------------
+
+Algorithm MAIN()
+    INSERT("apple")
+    INSERT("app")
+
+    print(SEARCH("app"))    // Output: TRUE
+    print(SEARCH("apple"))  // Output: TRUE
+    print(SEARCH("appl"))   // Output: FALSE
+---------------------------------------------------------
